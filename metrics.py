@@ -2,7 +2,10 @@ import torch
 
 
 class Metric:
-    '''Metric computes accuracy/precision/recall/confusion_matrix with batch updates.'''
+    '''
+    Metric computes accuracy/precision/recall/confusion_matrix
+    with batch updates.
+    '''
 
     def __init__(self, num_classes):
         self.num_classes = num_classes
