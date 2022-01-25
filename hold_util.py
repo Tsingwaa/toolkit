@@ -1,7 +1,7 @@
 import numpy as np
 import torch
-import torchvision
 import torch.nn as nn
+import torchvision
 
 model = torchvision.models.resnet50()
 model.cuda()

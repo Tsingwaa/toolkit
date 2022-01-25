@@ -1,33 +1,47 @@
-import os
+import argparse
 import io
+import os
+
 import cv2
 import lmdb
 from tqdm import tqdm
-import argparse
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--img-lst-path", type=str,
+    parser.add_argument("--img-lst-path",
+                        type=str,
                         help="input list including image name and category")
-    parser.add_argument("--map-lst-path", type=str,
+    parser.add_argument("--map-lst-path",
+                        type=str,
                         help="input list including image category and label")
     parser.add_argument("--img-dir", type=str, help="input image dir")
-    parser.add_argument("--lmdb-dir", type=str,
+    parser.add_argument("--lmdb-dir",
+                        type=str,
                         help="directory to save .mdb and .lock file.")
-    parser.add_argument("--resize", action="store_true",
+    parser.add_argument("--resize",
+                        action="store_true",
                         help="whether to resize")
     parser.add_argument("--height", type=int, default=224, help="input height")
     parser.add_argument("--width", type=int, default=224, help="input width")
-    parser.add_argument("--use-cv2", action="store_true",
-                        default=True, help="whether to use cv2 to resize")
+    parser.add_argument("--use-cv2",
+                        action="store_true",
+                        default=True,
+                        help="whether to use cv2 to resize")
 
     args = parser.parse_args()
+
     return args
 
 
-def gen_lmdb(img_dir, img_lst_path, map_lst_path, lmdb_dir, resize=False,
-             width=None, height=None, use_cv2=True):
+def gen_lmdb(img_dir,
+             img_lst_path,
+             map_lst_path,
+             lmdb_dir,
+             resize=False,
+             width=None,
+             height=None,
+             use_cv2=True):
     """Generate LMDB from image list
     Args:
         img_dir: directory to save images 
@@ -39,6 +53,7 @@ def gen_lmdb(img_dir, img_lst_path, map_lst_path, lmdb_dir, resize=False,
     """
 
     print("======> Start generating LMDB...")
+
     if not os.path.isdir(lmdb_dir):
         os.mkdir(lmdb_dir)
     lmdb_env = lmdb.open(lmdb_dir, map_size=8589934592 * 50)
@@ -54,6 +69,7 @@ def gen_lmdb(img_dir, img_lst_path, map_lst_path, lmdb_dir, resize=False,
 
     with open(img_lst_path, 'r') as f:
         num_samples = 0
+
         for idx, line in tqdm(enumerate(f.readlines())):
             img_name, img_ctg = line.strip().split('\t')
             img_path = os.path.join(img_dir, img_name)
@@ -72,7 +88,8 @@ def gen_lmdb(img_dir, img_lst_path, map_lst_path, lmdb_dir, resize=False,
                     except:
                         pass
             else:
-                with open(img_path, 'rb') as f:  # 'rb' ensures that f.read() is 'Byte'
+                with open(img_path,
+                          'rb') as f:  # 'rb' ensures that f.read() is 'Byte'
                     img_buffer = f.read()
 
             img_key = 'image-%09d' % (num_samples + 1)
@@ -80,8 +97,9 @@ def gen_lmdb(img_dir, img_lst_path, map_lst_path, lmdb_dir, resize=False,
 
             # Ensure that key and value are both 'Byte'
             lmdb_txn.put(img_key.encode(), img_buffer, overwrite=False)
-            lmdb_txn.put(label_key.encode(), str(
-                label).encode(), overwrite=False)
+            lmdb_txn.put(label_key.encode(),
+                         str(label).encode(),
+                         overwrite=False)
 
             num_samples += 1
 
@@ -92,7 +110,8 @@ def gen_lmdb(img_dir, img_lst_path, map_lst_path, lmdb_dir, resize=False,
     lmdb_env.sync()
     lmdb_env.close()
     print(f"=====> Done. \nLMDB save path: '{lmdb_dir}'")
-    print("===================================================================")
+    print(
+        "===================================================================")
 
 
 if __name__ == "__main__":

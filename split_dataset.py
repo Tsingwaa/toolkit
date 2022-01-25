@@ -1,4 +1,3 @@
-
 def split_dataset(data_root, dataset_name, split_ratio=0.8, manual_seed=0):
     """Split whole dataset into train and test dataset at ratio of 4:1.
     Args:
@@ -11,7 +10,8 @@ def split_dataset(data_root, dataset_name, split_ratio=0.8, manual_seed=0):
     import os
     import random
     import shutil
-    from os.path import join, isdir
+    from os.path import isdir, join
+
     from tqdm import tqdm
 
     random.manual_seed(manual_seed)
@@ -22,6 +22,7 @@ def split_dataset(data_root, dataset_name, split_ratio=0.8, manual_seed=0):
 
     for class_name in sorted(os.listdir(dataset_root)):
         class_dir = join(dataset_root, class_name)
+
         if not isdir(class_dir):
             continue
 
@@ -36,8 +37,10 @@ def split_dataset(data_root, dataset_name, split_ratio=0.8, manual_seed=0):
         os.makedirs(test_dir, exist_ok=True)
 
         print(f"\nProcessing '{class_name}'...")
+
         for i, img_fname in tqdm(enumerate(shuffled_img_fnames)):
             src_fpath = join(class_dir, img_fname)
+
             if i < train_num:
                 dst_fpath = join(train_dir, img_fname)
             else:
